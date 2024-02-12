@@ -1,19 +1,140 @@
-import React from "react";
-
+import React, { useRef, useState } from "react";
+import Header from "./Header";
+import checkValidateData from "../utils/checkValidateData";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  updateProfile,
+} from "firebase/auth";
+import { auth } from "../utils/firebase";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { addUser } from "../utils/userSlice";
 const Login = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [isSignInForm, setIsSignInForm] = useState(true);
+  const [errorMessage, setErrorMessage] = useState(null);
+  const name = useRef(null);
+  const email = useRef(null);
+  const password = useRef(null);
+  const toggleSignInForm = () => {
+    setIsSignInForm(!isSignInForm);
+  };
+
+  const handleButtonClick = () => {
+    const validationCheck = checkValidateData(
+      email.current.value,
+      password.current.value
+    );
+    setErrorMessage(validationCheck);
+    if (validationCheck !== null) return;
+    if (isSignInForm) {
+      signInWithEmailAndPassword(
+        auth,
+        email.current.value,
+        password.current.value
+      )
+        .then((userCredential) => {
+          const user = userCredential.user;
+          const { uid, email, displayName } = user;
+          dispatch(
+            addUser({ uid: uid, email: email, displayName: displayName })
+          );
+          navigate("/browse");
+        })
+        .catch((error) => {
+          const errorMessage = error.message;
+          setErrorMessage(errorMessage);
+        });
+    } else {
+      createUserWithEmailAndPassword(
+        auth,
+        email.current.value,
+        password.current.value
+      )
+        .then((userCredential) => {
+          const user = userCredential.user;
+          updateProfile(user.currentUser, {
+            displayName: name.current.value,
+          })
+            .then(() => {
+              const { uid, email, displayName } = auth;
+              console.log(auth);
+              dispatch(
+                addUser({ uid: uid, email: email, displayName: displayName })
+              );
+            })
+            .catch((error) => {
+              const errorMessage = error.message;
+              setErrorMessage(errorMessage);
+            });
+          navigate("/browse");
+        })
+        .catch((error) => {
+          const errorMessage = error.message;
+          setErrorMessage(errorMessage);
+        });
+    }
+  };
+
   return (
-    <div className="w-full h-full">
-      <div>
+    <div>
+      <Header />
+      <div className="h-full">
         <img
-          className="object-fill"
+          className="absolute h-full w-full"
           alt="login-background"
           src="https://assets.nflxext.com/ffe/siteui/vlv3/5e16108c-fd30-46de-9bb8-0b4e1bbbc509/29d8d7d7-83cc-4b5f-aa9b-6fd4f68bfaa6/IN-en-20240205-popsignuptwoweeks-perspective_alpha_website_large.jpg"
         />
       </div>
+      <form
+        onSubmit={(e) => e.preventDefault()}
+        className="absolute p-12 bg-black w-3/12 my-36 mx-auto left-0 right-0 text-white rounded-lg bg-opacity-70"
+      >
+        <h1 className="font-semibold text-3xl py-4">
+          {isSignInForm ? "Sign In" : "Sign Up"}
+        </h1>
+        {!isSignInForm && (
+          <input
+            ref={name}
+            type="text"
+            placeholder="Name"
+            className="p-4 mr-4 my-4 w-full bg-gray-700 rounded-sm opacity-75"
+          />
+        )}
+        <input
+          ref={email}
+          type="text"
+          placeholder="Email Address"
+          className="p-4 mr-4 my-4 w-full bg-gray-700 rounded-sm opacity-75"
+        />
+        <input
+          ref={password}
+          type="password"
+          placeholder="Password"
+          className="p-4 mr-4 my-4 w-full bg-gray-700 rounded-sm opacity-75"
+        />
+        <span className="font-semibold text-red-600">{errorMessage}</span>
+        <button
+          onClick={handleButtonClick}
+          className="p-4 mr-4 my-4 bg-red-700 w-full rounded-sm"
+        >
+          {isSignInForm ? "Login" : "Register"}
+        </button>
 
-      {/* <form>
-        <input type="text">Email</input>
-      </form> */}
+        <p className="my-3">
+          <span className="font-thin">
+            {isSignInForm ? "New to Netflix? " : "Already a user? "}
+          </span>
+          <span
+            onClick={toggleSignInForm}
+            className="hover:underline cursor-pointer"
+          >
+            {isSignInForm ? "Sign up now." : "Login here."}
+          </span>
+        </p>
+      </form>
     </div>
   );
 };

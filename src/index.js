@@ -2,18 +2,18 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
 import { Outlet, RouterProvider, createBrowserRouter } from "react-router-dom";
-import Header from "./components/Header";
 import Login from "./components/Login";
 import Browse from "./components/Browse";
 import Error from "./components/Error";
+import { Provider } from "react-redux";
+import appStore from "./utils/appStore";
 
 const AppLayout = () => {
   return (
     <div>
-      <div>
-        <Header />
+      <Provider store={appStore}>
         <Outlet />
-      </div>
+      </Provider>
     </div>
   );
 };
@@ -37,8 +37,4 @@ const appRouter = createBrowserRouter([
 ]);
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(
-  <React.StrictMode>
-    <RouterProvider router={appRouter}></RouterProvider>
-  </React.StrictMode>
-);
+root.render(<RouterProvider router={appRouter}></RouterProvider>);
