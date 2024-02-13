@@ -103,9 +103,9 @@ const Login = () => {
         <input
           // ref={password}
           onChange={(e) => setPassword(e.currentTarget.value)}
-          type="password"
+          type="text"
           placeholder="Password"
-          className="p-4 mr-4 my-4 w-full bg-gray-700 rounded-sm opacity-75"
+          className="p-4 mr-4 my-4 w-full bg-gray-700 rounded-sm opacity-75 text-opacity-0"
         />
         <span className="font-semibold text-red-600">{errorMessage}</span>
         <button
