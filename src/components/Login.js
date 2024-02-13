@@ -7,12 +7,11 @@ import {
   updateProfile,
 } from "firebase/auth";
 import { auth } from "../utils/firebase";
-import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { addUser } from "../utils/userSlice";
+import { NETFLIX_BACKGROUND } from "../utils/constants";
 const Login = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const [isSignInForm, setIsSignInForm] = useState(true);
   const [errorMessage, setErrorMessage] = useState(null);
   const name = useRef(null);
@@ -41,7 +40,6 @@ const Login = () => {
           dispatch(
             addUser({ uid: uid, email: email, displayName: displayName })
           );
-          navigate("/browse");
         })
         .catch((error) => {
           const errorMessage = error.message;
@@ -69,7 +67,6 @@ const Login = () => {
               const errorMessage = error.message;
               setErrorMessage(errorMessage);
             });
-          navigate("/browse");
         })
         .catch((error) => {
           const errorMessage = error.message;
@@ -85,7 +82,7 @@ const Login = () => {
         <img
           className="absolute h-full w-full"
           alt="login-background"
-          src="https://assets.nflxext.com/ffe/siteui/vlv3/5e16108c-fd30-46de-9bb8-0b4e1bbbc509/29d8d7d7-83cc-4b5f-aa9b-6fd4f68bfaa6/IN-en-20240205-popsignuptwoweeks-perspective_alpha_website_large.jpg"
+          src={NETFLIX_BACKGROUND}
         />
       </div>
       <form
